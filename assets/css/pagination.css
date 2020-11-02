@@ -1,0 +1,109 @@
+
+/* Pagination */
+div.pagination {
+ font-family: "Lucida Sans Unicode", "Lucida Grande", LucidaGrande, "Lucida Sans", Geneva, Verdana, sans-serif;
+ padding:2px;
+ margin: 10px 10px;
+ float: right;
+}
+
+div.pagination a {
+ margin: 2px;
+ padding: 0.5em 0.64em 0.43em 0.64em;
+ 
+}
+div.pagination a:hover {
+ padding: 0.5em 0.64em 0.43em 0.64em;
+ margin: 2px;
+ background-color: #6777ef;
+ color: #fff;
+}
+div.pagination b {
+  background-color: #6777ef;
+  text-decoration: none; /* no underline */
+  color: #fff;
+  margin: 2px;
+  padding: 0.5em 0.64em 0.43em 0.64em;
+}
+div.pagination p {
+ margin: 2px;
+ padding: 0.5em 0.64em 0.43em 0.64em;
+}
+div.pagination span.current {
+  padding: 0.5em 0.64em 0.43em 0.64em;
+  margin: 2px;
+  background-color: #f6efcc;
+  color: #6d643c;
+}
+div.pagination span.disabled {
+  display:none;
+}
+.pagination ul li{display: inline-block;}
+.pagination ul li a.active{opacity: .5;}
+
+/* loading */
+.custloading{position: absolute;left: 0; top: 0; right: 0; bottom: 0;z-index: 2;background: rgba(255,255,255,0.7);}
+.custloading .content {
+  position: absolute;
+  transform: translateY(-50%);
+  -webkit-transform: translateY(-50%);
+  -ms-transform: translateY(-50%);
+  top: 50%;
+  left: 0;
+  right: 0;
+  text-align: center;
+  color: #555;
+}
+
+
+/* loading */
+.suploading{position: absolute;left: 0; top: 0; right: 0; bottom: 0;z-index: 2;background: rgba(255,255,255,0.7);}
+.suploading .content {
+  position: absolute;
+  transform: translateY(-50%);
+  -webkit-transform: translateY(-50%);
+  -ms-transform: translateY(-50%);
+  top: 50%;
+  left: 0;
+  right: 0;
+  text-align: center;
+  color: #555;
+}
+
+/* loading */
+.prodloading{position: absolute;left: 0; top: 0; right: 0; bottom: 0;z-index: 2;background: rgba(255,255,255,0.7);}
+.prodloading .content {
+  position: absolute;
+  transform: translateY(-50%);
+  -webkit-transform: translateY(-50%);
+  -ms-transform: translateY(-50%);
+  top: 50%;
+  left: 0;
+  right: 0;
+  text-align: center;
+  color: #555;
+}
+
+.manufacturingloading{
+  position: absolute;
+  -webkit-animation-duration: 10s;
+  left: 0; 
+  top: 0; 
+  right: 0; 
+  bottom: 0;
+  z-index: 2;
+  background: rgba(255,255,255,0.7);
+}
+.manufacturingloading .content {
+  position: absolute;
+  transform: translateY(-50%);
+  -webkit-transform: translateY(-50%);
+  -ms-transform: translateY(-50%);
+  top: 50%;
+  left: 0;
+  right: 0;
+  text-align: center;
+  color: #555;
+}
+
+

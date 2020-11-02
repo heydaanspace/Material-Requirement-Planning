@@ -1,0 +1,133 @@
+/// KAMUS QUERY SQL \\\
+
+
+//Query Kartu Produk (Fix)
+SELECT c.product_sku,b.product_code,d.variant_code, a.category_name, b.product_name, d.variant_option, d.option_value 
+FROM product_category a JOIN product b ON a.category_id=b.category_id 
+JOIN product_sku c ON b.product_code=c.product_code
+LEFT JOIN product_variant d ON c.variant_code=d.variant_code
+ORDER by c.product_sku ASC
+
+//Query Count BOM Produk on product view (Fix)
+SELECT c.product_sku,b.product_code,d.variant_code, a.category_name, b.product_name, d.variant_option, d.option_value, COUNT(e.material_sku) as jumlah FROM product_category a JOIN product b ON a.category_id=b.category_id JOIN product_sku c ON b.product_code=c.product_code LEFT JOIN product_variant d ON c.variant_code=d.variant_code LEFT JOIN bill_of_material e ON e.product_sku=c.product_sku GROUP BY e.product_sku
+
+//Query Kartu material on material view (Fix)
+SELECT c.material_sku,b.material_code,d.mv_code, a.category_name, b.material_name, d.mv_option, d.mv_value 
+FROM material_category a JOIN material_item b ON a.category_id=b.category_id 
+JOIN material_sku c ON b.material_code=c.material_code
+LEFT JOIN material_variant d ON c.mv_code=d.mv_code
+ORDER by c.material_sku ASC
+
+
+//Query Load BOM for product on Product page view (Fix)
+SELECT b.product_sku,b.bom_code, b.material_sku, c.category_name, c.material_name, c.mv_option, c.mv_value, b.qty 
+FROM 
+(SELECT c.product_sku,b.product_code,d.variant_code, a.category_name, b.product_name, d.variant_option, d.option_value FROM product_category a JOIN product b ON a.category_id=b.category_id JOIN product_sku c ON b.product_code=c.product_code LEFT JOIN product_variant d ON c.variant_code=d.variant_code) 
+as a JOIN bill_of_material b ON a.product_sku=b.product_sku 
+JOIN 
+(SELECT c.material_sku,b.material_code,d.mv_code, a.category_name, b.material_name, d.mv_option, d.mv_value FROM material_category a JOIN material_item b ON a.category_id=b.category_id JOIN material_sku c ON b.material_code=c.material_code LEFT JOIN material_variant d ON c.mv_code=d.mv_code) 
+as c ON b.material_sku=c.material_sku
+
+//Query Count produk ON MO => manufacturing page (Fix)
+SELECT a.mo_id, a.prod_deadline, COUNT(b.product_sku) as jumlah_produk 
+FROM manufacturing_order a JOIN detail_manufacturing_order b ON a.mo_id=b.mo_id GROUP by a.mo_id
+
+//Query product on MO => Load on modal diplay item product on MO (Fix)
+SELECT c.mo_code, c.prod_deadline, a.product_sku, a.product_name, a.option_value
+FROM 
+(SELECT c.product_sku,b.product_code,d.variant_code, a.category_name, b.product_name, d.variant_option, d.option_value FROM product_category a JOIN product b ON a.category_id=b.category_id JOIN product_sku c ON b.product_code=c.product_code LEFT JOIN product_variant d ON c.variant_code=d.variant_code) 
+as a JOIN detail_manufacturing_order b ON a.product_sku=b.product_sku
+JOIN manufacturing_order c ON c.mo_id=b.mo_id
+
+//Query Inventory => inventory page view (Fix)
+SELECT a.material_sku, a.material_name,a.mv_value, a.material_price, c.schedule_receipt, c.quantity_po  as Jumlah_SR, b.quantity, b.value_in_stock 
+FROM 
+(SELECT c.material_sku,b.material_code,d.mv_code, a.category_name, b.material_name, d.mv_option, d.mv_value, c.material_price FROM material_category a JOIN material_item b ON a.category_id=b.category_id JOIN material_sku c ON b.material_code=c.material_code LEFT JOIN material_variant d ON c.mv_code=d.mv_code) 
+as a JOIN inventory_stock b ON a.material_sku=b.material_sku
+LEFT JOIN detail_po c ON c.inv_id=b.inv_id
+LEFT JOIN purchase_order d ON d.po_id=c.po_id
+
+//Query Det BOM MO
+SELECT e.mo_code, e.prod_deadline, a.product_sku, a.product_name, a.option_value, d.quantity, c.material_name, c.mv_value 
+FROM 
+(SELECT c.product_sku,b.product_code,d.variant_code, a.category_name, b.product_name, d.variant_option, d.option_value FROM product_category a JOIN product b ON a.category_id=b.category_id JOIN product_sku c ON b.product_code=c.product_code LEFT JOIN product_variant d ON c.variant_code=d.variant_code) 
+as a JOIN bill_of_material b ON a.product_sku=b.product_sku
+JOIN 
+(SELECT c.material_sku,b.material_code,d.mv_code, a.category_name, b.material_name, d.mv_option, d.mv_value 
+FROM material_category a JOIN material_item b ON a.category_id=b.category_id JOIN material_sku c ON b.material_code=c.material_code LEFT JOIN material_variant d ON c.mv_code=d.mv_code) 
+as c ON b.material_sku=c.material_sku
+JOIN detail_manufacturing_order d ON a.product_sku=d.product_sku
+JOIN manufacturing_order e ON e.mo_id=d.mo_id
+
+
+
+//query tabel mrp (Fix)
+SELECT 
+b.mrp_code, e.mo_code, d.quantity as jml_prod, 
+f.product_sku, f.product_name, f.option_value, b.created_date, g.material_name, g.mv_value, a.gross_req, a.net_req, a.PORel, a.qty_PORel, h.quantity as stok, i.schedule_receipt, i.quantity_po
+FROM detail_mrp a JOIN mrp b ON a.mrp_id=b.mrp_id
+JOIN bill_of_material c ON c.bom_code=a.bom_code
+JOIN detail_manufacturing_order d ON d.id_det_mo=a.id_det_mo
+JOIN manufacturing_order e ON e.mo_id=d.mo_id
+JOIN 
+(SELECT c.product_sku,b.product_code,d.variant_code, a.category_name, b.product_name, d.variant_option, d.option_value FROM product_category a JOIN product b ON a.category_id=b.category_id JOIN product_sku c ON b.product_code=c.product_code LEFT JOIN product_variant d ON c.variant_code=d.variant_code) as f ON f.product_sku=c.product_sku
+JOIN 
+(SELECT c.material_sku,b.material_code,d.mv_code, a.category_name, b.material_name, d.mv_option, d.mv_value, b.material_unit 
+FROM material_category a JOIN material_item b ON a.category_id=b.category_id JOIN material_sku c ON b.material_code=c.material_code LEFT JOIN material_variant d ON c.mv_code=d.mv_code) as g ON g.material_sku=c.material_sku
+JOIN inventory_stock h ON h.material_sku=g.material_sku
+LEFT JOIN detail_po i ON i.inv_id=h.inv_id
+LEFT JOIN purchase_order j ON j.po_id=i.po_id
+GROUP BY b.mrp_code
+
+//Query show material on create new MRP
+SELECT 
+a.product_name, a.option_value, c.material_sku, c.material_name, c.mv_value
+FROM
+(SELECT c.product_sku,b.product_code,d.variant_code, a.category_name, b.product_name, d.variant_option, d.option_value FROM product_category a JOIN product b ON a.category_id=b.category_id JOIN product_sku c ON b.product_code=c.product_code LEFT JOIN product_variant d ON c.variant_code=d.variant_code) as a 
+JOIN bill_of_material b ON a.product_sku=b.product_sku
+JOIN
+(SELECT c.material_sku,b.material_code,d.mv_code, a.category_name, b.material_name, d.mv_option, d.mv_value, b.material_unit FROM material_category a JOIN material_item b ON a.category_id=b.category_id JOIN material_sku c ON b.material_code=c.material_code LEFT JOIN material_variant d ON c.mv_code=d.mv_code) as c 
+ON c.material_sku=b.material_sku
+LEFT JOIN inventory_stock d ON d.material_sku=c.material_sku
+LEFT JOIN detail_po e ON e.inv_id=d.inv_id
+LEFT JOIN purchase_order f ON f.po_id=e.po_id
+WHERE a.product_sku = "PSNV01"
+
+//query mrp rekap per nomor produksi
+SELECT 
+b.mrp_code, e.mo_code, d.quantity as jml_prod, 
+f.product_sku, f.product_name, f.option_value, b.created_date, g.material_name, g.mv_value, SUM(a.gross_req), SUM(a.net_req), a.PORel, SUM(a.qty_PORel)
+FROM detail_mrp a JOIN mrp b ON a.mrp_id=b.mrp_id
+JOIN bill_of_material c ON c.bom_code=a.bom_code
+JOIN detail_manufacturing_order d ON d.id_det_mo=a.id_det_mo
+JOIN manufacturing_order e ON e.mo_id=d.mo_id
+JOIN 
+(SELECT c.product_sku,b.product_code,d.variant_code, a.category_name, b.product_name, d.variant_option, d.option_value FROM product_category a JOIN product b ON a.category_id=b.category_id JOIN product_sku c ON b.product_code=c.product_code LEFT JOIN product_variant d ON c.variant_code=d.variant_code) as f ON f.product_sku=c.product_sku
+JOIN 
+(SELECT c.material_sku,b.material_code,d.mv_code, a.category_name, b.material_name, d.mv_option, d.mv_value, b.material_unit 
+FROM material_category a JOIN material_item b ON a.category_id=b.category_id JOIN material_sku c ON b.material_code=c.material_code LEFT JOIN material_variant d ON c.mv_code=d.mv_code) as g ON g.material_sku=c.material_sku
+JOIN inventory_stock h ON h.material_sku=g.material_sku
+LEFT JOIN detail_po i ON i.inv_id=h.inv_id
+LEFT JOIN purchase_order j ON j.po_id=i.po_id
+WHERE e.mo_id = "24"
+GROUP BY g.material_sku
+
+//Query PO Page
+SELECT 
+d.po_code, d.supplier,d.total_cost, c.status_po, COUNT(d.po_id) as jml_po
+FROM 
+(SELECT c.material_sku,b.material_code,d.mv_code, a.category_name, b.material_name, d.mv_option, d.mv_value, c.material_price FROM material_category a JOIN material_item b ON a.category_id=b.category_id JOIN material_sku c ON b.material_code=c.material_code LEFT JOIN material_variant d ON c.mv_code=d.mv_code) 
+as a JOIN inventory_stock b ON a.material_sku=b.material_sku 
+JOIN detail_po c ON c.inv_id=b.inv_id 
+JOIN purchase_order d ON d.po_id=c.po_id 
+GROUP BY d.po_code
+
+
+//get date from leadtima
+<?php
+$date = date_create();
+$get = -2;
+$lt = "$get days";
+date_add($date, date_interval_create_from_date_string($lt));
+echo date_format($date, 'Y-m-d');
+?>
